@@ -1,0 +1,116 @@
+#include <iostream>
+using namespace std;
+
+struct TRecord {
+	int time;
+	string name;
+};
+struct TList {
+	TRecord Rec;
+	TList* Next, * Prev;
+
+};
+TList* Head;
+TList* Last;
+void Add(int x, string s)
+{
+
+	TList* r = new TList;
+	r->Rec.time = x;
+	r->Rec.name = s;
+
+	r->Next = 0; r->Prev = 0;
+	if (Last)
+	{
+		Last->Next = r; r->Prev = Last;
+	}
+	if (!Head) Head = r;
+	Last = r;
+}
+
+void Clear() {
+	if (!Head) return;
+	for (Last = Head->Next; Last; Last = Last->Next) {
+		delete Last->Prev;
+		Head = Last;
+	}
+	delete Head;
+}
+
+void Write() {
+	for (Last = Head; Last; Last = Last->Next) {
+		cout.width(10);
+		cout << Last->Rec.time;
+	}
+	cout << endl;
+
+	for (Last = Head; Last; Last = Last->Next) {
+		cout.width(10);
+		cout.setf(ios_base::right);
+		cout << Last->Rec.name;
+	}; cout << endl;
+	cout << endl;
+}
+
+bool Condition(string Direct, string FieldName, TRecord a, TRecord b) {
+	return (Direct == "asc" && FieldName == "time" && a.time > b.time)
+		|| (Direct == "desc" && FieldName == "time" && a.time < b.time)
+		|| (Direct == "asc" && FieldName == "name" && a.name < b.name)
+		|| (Direct == "desc" && FieldName == "name" && a.name > b.name)
+		;
+}
+
+
+void Sort(string FieldName, string Direct) {
+	for (TList* i = Head; i; i = i->Next) {
+		for (TList* j = Head; j; j = j->Next) {
+			if (Condition(Direct, FieldName, i->Rec, j->Rec)) {
+				TRecord r = i->Rec;
+				i->Rec = j->Rec;
+				j->Rec = r;
+			}
+		}
+	}
+}
+int main()
+{
+	string value;
+	int x;
+	int time;
+	do
+	{
+		cout << "1. Add element" << endl;
+		cout << "2. Clear list" << endl;
+		cout << "3. Display list" << endl;
+		cout << "4. Sort list" << endl;
+		cout << "0. Exit" << endl;
+		cout << "\n Operation : > "; cin >> x;
+		switch (x)
+		{
+		case 1:
+			int count;
+			cout << "Count of elements" << endl; cin >> count;
+			for (int i = 0; i < count; i++)
+			{
+				cout << "Station > "; cin >> value;
+				cout << "Time  (only integers)> "; cin >> time;
+				Add(time, value);
+			}
+			break;
+		case 2:
+			Clear(); break;
+		case 3:
+			cout << "List:" << endl; Write();
+			break;
+		case 4:
+			cout << "Stations time:" << endl; Sort("time", "desc"); Write();
+			break;
+		case 0:
+			return 0;
+			break;
+		}
+	} while (x != 0);
+	Clear();
+	cin.get();
+	return 0;
+}
